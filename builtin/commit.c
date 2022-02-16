@@ -1865,7 +1865,7 @@ int cmd_commit(int argc, const char **argv, const char *prefix)
 
 cleanup:
 	strbuf_release(&author_ident);
-	UNLEAK(err);
-	UNLEAK(sb);
+	strbuf_release(&err);
+	strbuf_release(&sb);
 	return ret;
 }
