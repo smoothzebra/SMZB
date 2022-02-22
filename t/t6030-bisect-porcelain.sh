@@ -980,4 +980,14 @@ test_expect_success 'bisect visualize with a filename with dash and space' '
 	git bisect visualize -p -- "-hello 2"
 '
 
+test_expect_success 'testing' '
+	git bisect reset &&
+	git bisect start $HASH4 $HASH1 &&
+	write_script test_script.sh <<-\EOF &&
+	rm .git/BISECT*
+	EOF
+	test_must_fail git bisect run ./test_script.sh 2>error &&
+	grep "git bisect good.*exited with error code" error
+'
+
 test_done

@@ -1093,7 +1093,6 @@ static int bisect_run(struct bisect_terms *terms, const char **argv, int argc)
 {
 	int res = BISECT_OK;
 	struct strbuf command = STRBUF_INIT;
-	struct strvec args = STRVEC_INIT;
 	struct strvec run_args = STRVEC_INIT;
 	const char *new_state;
 	int temporary_stdout_fd, saved_stdout;
@@ -1111,8 +1110,6 @@ static int bisect_run(struct bisect_terms *terms, const char **argv, int argc)
 	strvec_push(&run_args, command.buf);
 
 	while (1) {
-		strvec_clear(&args);
-
 		printf(_("running %s\n"), command.buf);
 		res = run_command_v_opt(run_args.v, RUN_USING_SHELL);
 
@@ -1157,14 +1154,13 @@ static int bisect_run(struct bisect_terms *terms, const char **argv, int argc)
 			printf(_("bisect found first bad commit"));
 			res = BISECT_OK;
 		} else if (res) {
-			error(_("bisect run failed: 'git bisect--helper --bisect-state"
-			" %s' exited with error code %d"), args.v[0], res);
+			error(_("bisect run failed: 'git bisect"
+			" %s' exited with error code %d"), new_state, res);
 		} else {
 			continue;
 		}
 
 		strbuf_release(&command);
-		strvec_clear(&args);
 		strvec_clear(&run_args);
 		return res;
 	}
