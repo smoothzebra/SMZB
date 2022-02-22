@@ -20,7 +20,7 @@ static GIT_PATH_FUNC(git_path_bisect_names, "BISECT_NAMES")
 static GIT_PATH_FUNC(git_path_bisect_first_parent, "BISECT_FIRST_PARENT")
 static GIT_PATH_FUNC(git_path_bisect_run, "BISECT_RUN")
 
-static const char * const git_bisect_usage[] = {
+static const char * const builtin_bisect_usage[] = {
 	N_("git bisect help\n"
 	   "\tprint this long help message."),
 	N_("git bisect start [--term-{new,bad}=<term> --term-{old,good}=<term>]\n"
@@ -1182,7 +1182,7 @@ static int bisect_run(struct bisect_terms *terms, const char **argv, int argc)
 	}
 }
 
-int cmd_bisect__helper(int argc, const char **argv, const char *prefix)
+int cmd_bisect(int argc, const char **argv, const char *prefix)
 {
 	int res = 0;
 	struct option options[] = {
@@ -1192,7 +1192,7 @@ int cmd_bisect__helper(int argc, const char **argv, const char *prefix)
 	const char *command = argc > 1 ? argv[1] : "help";
 
 	if (!strcmp("-h", command) || !strcmp("help", command))
-		usage_with_options(git_bisect_usage, options);
+		usage_with_options(builtin_bisect_usage, options);
 
 	argc -= 2;
 	argv += 2;
@@ -1239,7 +1239,7 @@ int cmd_bisect__helper(int argc, const char **argv, const char *prefix)
 		get_terms(&terms);
 		if (check_and_set_terms(&terms, command)) {
 			char *msg = xstrfmt(_("unknown command: '%s'"), command);
-			usage_msg_opt(msg, git_bisect_usage, options);
+			usage_msg_opt(msg, builtin_bisect_usage, options);
 		}
 		/* shift the `command` back in */
 		argc++;
