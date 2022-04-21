@@ -459,6 +459,19 @@ typedef int (*task_finished_fn)(int result,
 				void *pp_task_cb);
 
 /**
+ * Options to pass to run_processes_parallel(), { 0 }-initialized
+ * means no options. Fields:
+ *
+ * tr2_category & tr2_label: sets the trace2 category and label for
+ * logging. These must either be unset, or both of them must be set.
+ */
+struct run_process_parallel_opts
+{
+	const char *tr2_category;
+	const char *tr2_label;
+};
+
+/**
  * Runs up to n processes at the same time. Whenever a process can be
  * started, the callback get_next_task_fn is called to obtain the data
  * required to start another child process.
@@ -469,15 +482,12 @@ typedef int (*task_finished_fn)(int result,
  *
  * start_failure_fn and task_finished_fn can be NULL to omit any
  * special handling.
+ *
+ * Options are passed via a "struct run_process_parallel_opts".
  */
-int run_processes_parallel(int n,
-			   get_next_task_fn,
-			   start_failure_fn,
-			   task_finished_fn,
-			   void *pp_cb);
-int run_processes_parallel_tr2(int n, get_next_task_fn, start_failure_fn,
-			       task_finished_fn, void *pp_cb,
-			       const char *tr2_category, const char *tr2_label);
+int run_processes_parallel(int n, get_next_task_fn, start_failure_fn,
+			   task_finished_fn, void *pp_cb,
+			   struct run_process_parallel_opts *opts);
 
 /**
  * Convenience function which prepares env_array for a command to be run in a

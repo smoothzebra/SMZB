@@ -1738,11 +1738,11 @@ static int pp_collect_finished(struct parallel_processes *pp)
 	return result;
 }
 
-int run_processes_parallel(int n,
-			   get_next_task_fn get_next_task,
-			   start_failure_fn start_failure,
-			   task_finished_fn task_finished,
-			   void *pp_cb)
+static int run_processes_parallel_1(int n, get_next_task_fn get_next_task,
+				    start_failure_fn start_failure,
+				    task_finished_fn task_finished,
+				    void *pp_cb,
+				    struct run_process_parallel_opts *opts)
 {
 	int i, code;
 	int output_timeout = 100;
@@ -1780,23 +1780,41 @@ int run_processes_parallel(int n,
 	return 0;
 }
 
-int run_processes_parallel_tr2(int n, get_next_task_fn get_next_task,
-			       start_failure_fn start_failure,
-			       task_finished_fn task_finished, void *pp_cb,
-			       const char *tr2_category, const char *tr2_label)
+static int run_processes_parallel_tr2(int n, get_next_task_fn get_next_task,
+				      start_failure_fn start_failure,
+				      task_finished_fn task_finished,
+				      void *pp_cb,
+				      struct run_process_parallel_opts *opts)
 {
+	const char *tr2_category = opts->tr2_category;
+	const char *tr2_label = opts->tr2_label;
 	int result;
 
 	trace2_region_enter_printf(tr2_category, tr2_label, NULL, "max:%d",
 				   ((n < 1) ? online_cpus() : n));
 
-	result = run_processes_parallel(n, get_next_task, start_failure,
-					task_finished, pp_cb);
+	result = run_processes_parallel_1(n, get_next_task, start_failure,
+					  task_finished, pp_cb, opts);
 
 	trace2_region_leave(tr2_category, tr2_label, NULL);
 
 	return result;
 }
+
+int run_processes_parallel(int n, get_next_task_fn get_next_task,
+			   start_failure_fn start_failure,
+			   task_finished_fn task_finished, void *pp_cb,
+			   struct run_process_parallel_opts *opts)
+{
+	if (opts->tr2_category && opts->tr2_label)
+		return run_processes_parallel_tr2(n, get_next_task,
+						  start_failure, task_finished,
+						  pp_cb, opts);
+
+	return run_processes_parallel_1(n, get_next_task, start_failure,
+					task_finished, pp_cb, opts);
+}
+
 
 int run_auto_maintenance(int quiet)
 {

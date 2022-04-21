@@ -183,7 +183,7 @@ static int testsuite(int argc, const char **argv)
 		(uintmax_t)suite.tests.nr, max_jobs);
 
 	ret = run_processes_parallel(max_jobs, next_test, test_failed,
-				     test_finished, &suite);
+				     test_finished, &suite, NULL);
 
 	if (suite.failed.nr > 0) {
 		ret = 1;
@@ -371,6 +371,7 @@ int cmd__run_command(int argc, const char **argv)
 {
 	struct child_process proc = CHILD_PROCESS_INIT;
 	int jobs;
+	struct run_process_parallel_opts opts = { 0 };
 
 	if (argc > 1 && !strcmp(argv[1], "testsuite"))
 		exit(testsuite(argc - 1, argv + 1));
@@ -413,15 +414,15 @@ int cmd__run_command(int argc, const char **argv)
 
 	if (!strcmp(argv[1], "run-command-parallel"))
 		exit(run_processes_parallel(jobs, parallel_next,
-					    NULL, NULL, &proc));
+					    NULL, NULL, &proc, &opts));
 
 	if (!strcmp(argv[1], "run-command-abort"))
-		exit(run_processes_parallel(jobs, parallel_next,
-					    NULL, task_finished, &proc));
+		exit(run_processes_parallel(jobs, parallel_next, NULL,
+					    task_finished, &proc, &opts));
 
 	if (!strcmp(argv[1], "run-command-no-jobs"))
-		exit(run_processes_parallel(jobs, no_job,
-					    NULL, task_finished, &proc));
+		exit(run_processes_parallel(jobs, no_job, NULL, task_finished,
+					    &proc, &opts));
 
 	fprintf(stderr, "check usage\n");
 	return 1;

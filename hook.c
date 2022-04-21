@@ -123,6 +123,10 @@ int run_hooks_opt(const char *hook_name, struct run_hooks_opt *options)
 	const char *const hook_path = find_hook(hook_name);
 	int jobs = 1;
 	int ret = 0;
+	struct run_process_parallel_opts run_opts = {
+		.tr2_category = "hook",
+		.tr2_label = hook_name,
+	};
 
 	if (!options)
 		BUG("a struct run_hooks_opt must be provided to run_hooks");
@@ -144,13 +148,8 @@ int run_hooks_opt(const char *hook_name, struct run_hooks_opt *options)
 		cb_data.hook_path = abs_path.buf;
 	}
 
-	run_processes_parallel_tr2(jobs,
-				   pick_next_hook,
-				   notify_start_failure,
-				   notify_hook_finished,
-				   &cb_data,
-				   "hook",
-				   hook_name);
+	run_processes_parallel(jobs, pick_next_hook, notify_start_failure,
+			       notify_hook_finished, &cb_data, &run_opts);
 	ret = cb_data.rc;
 cleanup:
 	strbuf_release(&abs_path);
