@@ -87,12 +87,12 @@ then
 	echo "$(tput setaf 6)Perforce Client Version$(tput sgr0)"
 	p4 -V | grep Rev.
 else
-	echo "WARNING: perforce wasn't installed, see above for clues why" >2
+	echo >&2 "WARNING: perforce wasn't installed, see above for clues why"
 fi
 if type git-lfs >/dev/null 2>&1
 then
 	echo "$(tput setaf 6)Git-LFS Version$(tput sgr0)"
 	git-lfs version
 else
-	echo "WARNING: git-lfs wasn't installed, see above for clues why" >2
+	echo >&2 "WARNING: git-lfs wasn't installed, see above for clues why"
 fi
