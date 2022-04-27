@@ -821,6 +821,14 @@ Adding the 'psuh' command
 Your PR's description will used as the body of the cover letter.
 include::MyFirstContribution-coverletter.txt[]
 
+NOTE: For single-patch contributions, your commit message should already be
+meaningful and explain at a high level the purpose (what is happening and why)
+of your patch, so you usually do not need any additional context. In that case,
+remove the PR description that GitHub automatically generates from your commit
+message (your PR description should be empty). If you do need to supply even
+more context, you can do so in that space and it will be appended to the email
+that GitGitGadget will send, separately from your commit message.
+
 When you're happy, submit your pull request.
 
 [[run-ci-ggg]]
