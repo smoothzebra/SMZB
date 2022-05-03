@@ -571,6 +571,7 @@ TCLTK_PATH = wish
 XGETTEXT = xgettext
 MSGCAT = msgcat
 MSGFMT = msgfmt
+MSGMERGE = msgmerge
 CURL_CONFIG = curl-config
 GCOV = gcov
 STRIP = strip
@@ -2716,6 +2717,7 @@ XGETTEXT_FLAGS_SH = $(XGETTEXT_FLAGS) --language=Shell \
 XGETTEXT_FLAGS_PERL = $(XGETTEXT_FLAGS) --language=Perl \
 	--keyword=__ --keyword=N__ --keyword="__n:1,2"
 MSGCAT_FLAGS = --sort-by-file
+MSGMERGE_FLAGS = --add-location --backup=off --update
 LOCALIZED_C = $(FOUND_C_SOURCES) $(SCALAR_SOURCES) \
 	      $(FOUND_H_SOURCES) $(GENERATED_H)
 LOCALIZED_SH = $(SCRIPT_SH)
@@ -2786,6 +2788,20 @@ po/git.pot: .build/pot/git.header $(LOCALIZED_ALL_GEN_PO)
 
 .PHONY: pot
 pot: po/git.pot
+
+po-update: po/git.pot
+ifndef PO_FILE
+	$(error not define variable "PO_FILE")
+else
+ifeq ($(filter po/%.po,$(PO_FILE)),)
+	$(error PO_FILE should match pattern: "po/%.po")
+endif
+endif
+	@if test ! -e $(PO_FILE); then \
+		echo >&2 "error: $(PO_FILE) does not exist"; \
+		exit 1; \
+	fi
+	$(QUIET_MSGMERGE)$(MSGMERGE) $(MSGMERGE_FLAGS) $(PO_FILE) po/git.pot
 
 .PHONY: check-pot
 check-pot: pot
