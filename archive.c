@@ -533,13 +533,37 @@ static int add_file_cb(const struct option *opt, const char *arg, int unset)
 			die(_("Not a regular file: %s"), path);
 		info->content = NULL; /* read the file later */
 	} else {
-		const char *colon = strchr(arg, ':');
 		char *p;
 
-		if (!colon)
-			die(_("missing colon: '%s'"), arg);
+		if (*arg != '"') {
+			const char *colon = strchr(arg, ':');
 
-		p = xstrndup(arg, colon - arg);
+			if (!colon)
+				die(_("missing colon: '%s'"), arg);
+			p = xstrndup(arg, colon - arg);
+			arg = colon + 1;
+		} else {
+			struct strbuf buf = STRBUF_INIT;
+			const char *orig = arg;
+
+			for (;;) {
+				if (!*(++arg))
+					die(_("unclosed quote: '%s'"), orig);
+				if (*arg == '"')
+					break;
+				if (*arg == '\\' && *(++arg) == '\0')
+					die(_("trailing backslash: '%s"), orig);
+				else
+					strbuf_addch(&buf, *arg);
+			}
+
+			if (*(++arg) != ':')
+				die(_("missing colon: '%s'"), orig);
+
+			p = strbuf_detach(&buf, NULL);
+			arg++;
+		}
+
 		if (!args->prefix)
 			path = p;
 		else {
@@ -548,7 +572,7 @@ static int add_file_cb(const struct option *opt, const char *arg, int unset)
 		}
 		memset(&info->stat, 0, sizeof(info->stat));
 		info->stat.st_mode = S_IFREG | 0644;
-		info->content = xstrdup(colon + 1);
+		info->content = xstrdup(arg);
 		info->stat.st_size = strlen(info->content);
 	}
 	item = string_list_append_nodup(&args->extra_files, path);
