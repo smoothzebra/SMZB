@@ -489,7 +489,7 @@ static void dwim_branch_start(struct repository *r, const char *start_name,
 		break;
 	}
 
-	if ((commit = lookup_commit_reference(r, &oid)) == NULL)
+	if (!(commit = lookup_commit_reference(r, &oid)))
 		die(_("not a valid branch point: '%s'"), start_name);
 	if (out_real_ref) {
 		*out_real_ref = real_ref;
@@ -678,7 +678,7 @@ void create_branches_recursively(struct repository *r, const char *name,
 	 * be created in every submodule.
 	 */
 	for (i = 0; i < submodule_entry_list.entry_nr; i++) {
-		if (submodule_entry_list.entries[i].repo == NULL) {
+		if (!submodule_entry_list.entries[i].repo) {
 			int code = die_message(
 				_("submodule '%s': unable to find submodule"),
 				submodule_entry_list.entries[i].submodule->name);
