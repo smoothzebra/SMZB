@@ -49,6 +49,17 @@ test_expect_success 'do partial clone 1' '
 	test "$(git -C pc1 config --local remote.origin.partialclonefilter)" = "blob:none"
 '
 
+test_expect_success 'filters for promisor remotes is listed by git remote -v' '
+	git clone --filter=blob:none "file://$(pwd)/srv.bare" pc2 &&
+	git -C pc2 remote -v >out &&
+	grep "[blob:none]" out &&
+
+	git -C pc2 config remote.origin.partialCloneFilter object:type=commit &&
+	git -C pc2 remote -v >out &&
+	grep "[object:type=commit]" out &&
+	rm -rf pc2
+'
+
 test_expect_success 'verify that .promisor file contains refs fetched' '
 	ls pc1/.git/objects/pack/pack-*.promisor >promisorlist &&
 	test_line_count = 1 promisorlist &&
